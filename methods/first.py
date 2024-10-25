@@ -7,11 +7,6 @@ start_time = time.time()
 x, y = symbols('x y')
 z = (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * sin(x * y)
 
-# Нахождение частных производных
-dz_dx = diff(z, x)
-dz_dy = diff(z, y)
-print(f"dz_dx = {dz_dx}, dz_dy = {dz_dy}")
-
 # Определение начальных координат
 x_val = 5
 y_val = 2
@@ -19,17 +14,19 @@ z_val = z.subs({x: x_val, y: y_val}).evalf()
 print(f"x = {x_val}, y = {y_val}, z = {z_val}")
 
 # Определение длины шага альфа и количества шагов
+h = 0.0001
 alpha = 0.01
-n_steps = 1000
+n_steps = 500
 print("In process...")
 
 # Цикл поиска экстремума
 for i in range(n_steps):
-    grad_x = dz_dx.subs({x: x_val, y: y_val}).evalf()
-    grad_y = dz_dy.subs({x: x_val, y: y_val}).evalf()
+    grad_x = (z.subs({x: x_val + h, y: y_val}).evalf() - z.subs({x: x_val, y: y_val}).evalf()) / h
+    grad_y = (z.subs({x: x_val, y: y_val + h}).evalf() - z.subs({x: x_val, y: y_val}).evalf()) / h
 
-    x_val = (x_val - alpha * grad_x).evalf()
-    y_val = (y_val - alpha * grad_y).evalf()
+
+    x_val = x_val - alpha * grad_x
+    y_val = y_val - alpha * grad_y
     z_val = z.subs({x: x_val, y: y_val}).evalf()
 
     try:

@@ -16,7 +16,7 @@ def writeTerminalFile(s, x_val, y_val, z_val, step, file):
     s = f"x = {round(x_val, 4)}, y = {round(y_val, 4)}, z = {round(z_val, 4)}\nNumber of steps: {step}\n"
     file.write(s + "\n")
     print(s)
-
+        
 start_time = time.time()
 
 file = open("output.txt", "w")
@@ -27,7 +27,11 @@ z = (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * sin(x * y)
 file.write(f"Function: {z}\n")
 
 # Определение начальных координат, количества шагов, массива минимальных найденных значений функции, длины шага альфа, скорости убывания бетта
-xy_values = [[random.randint(-5, 5) for _ in range(2)] for _ in range(3)]
+xy_values = [[random.randint(-5, 5) for _ in range(2)] for _ in range(50)]
+
+# xy_values = [[-3, 4], [0, 2], [-1, 2], [-1, 1], [1, 2], [-2, 1], [0, 1], [1, 1], [1, 0], [2, 1], [2, 2], [-1, -1]]
+# Example loop:
+# xy_values = [[3, -5], [0, 2], [-1, 2]]
 
 n_steps = sys.maxsize
 all_z_min = []
@@ -39,6 +43,9 @@ print("In process...")
 for xy_val in xy_values:
     z_val = 0
     x_val, y_val = xy_val[0], xy_val[1]
+    z_loop = 1
+    z_bool = True
+    
     s = f"Initial data: x = {round(x_val, 4)}, y = {round(y_val, 4)}"
     file.write(s + "\n")
     print(s)
@@ -54,21 +61,27 @@ for xy_val in xy_values:
         old_grad_x = grad_x
         old_grad_y = grad_y
 
-        if round(z_val, 4) != round(z.subs({x: x_val, y: y_val}).evalf(), 4) and z_val < 999999 and (alpha >= 0.1 or step < 500):
+        if round(z_val, 4) != round(z.subs({x: x_val, y: y_val}).evalf(), 4) and z_val < 999999 and round(z_loop, 4) != round(z.subs({x: x_val, y: y_val}).evalf(), 4):
             z_val = z.subs({x: x_val, y: y_val}).evalf()
+
+            if z_bool:
+                z_loop = z_val
+                z_bool = False
+            else:
+                z_bool = True
         else:
             all_z_min.append(z_val)
             writeTerminalFile(s, x_val, y_val, z_val, step, file)
             break
 
     # Условие остановки или добавления новых точек
-    if len(all_z_min) % 3 == 0: 
-        if len(all_z_min) == 9: 
-            break
-        elif average(all_z_min) < 0.01:
-            xy_values.extend([[random.randint(-5, 5) for _ in range(2)] for _ in range(3)])
-        else: 
-            break
+    # if len(all_z_min) % 3 == 0: 
+    #     if len(all_z_min) == 9: 
+    #         break
+    #     elif average(all_z_min) < 0.01:
+    #         xy_values.extend([[random.randint(-5, 5) for _ in range(2)] for _ in range(3)])
+    #     else: 
+    #         break
 
 
 # Нахождение минимального значения из найденных экстремумов
