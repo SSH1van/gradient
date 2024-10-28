@@ -7,6 +7,21 @@ import random
 def find_z(x, y):
     return (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * math.sin(x * y)
 
+# Генератор уникальных случайных координат в заданном количестве, в заданном диапазоне
+def generator_xy(xy_values, num_xy, left, right):
+    max_num_xy = (abs(left) + abs(right) + 1) ** 2 - len(xy_values)
+    if num_xy > max_num_xy:
+        num_xy = max_num_xy
+        print(f"The maximum number of coordinates has been changed to {num_xy}\n")
+        
+    for i in range(num_xy):
+        x, y = random.randint(left, right), random.randint(left, right)
+        while [x, y] in xy_values:
+            x, y = random.randint(left, right), random.randint(left, right)
+        else:
+            xy_values.append([x, y])
+    return xy_values
+
 # Вывод в терминал и запись в файл
 def writeTerminalFile(s, x, y, z, step, file):
     s = f"x = {round(x, 4)}, y = {round(y, 4)}, z = {round(z, 4)}\nNumber of steps: {step}\n"
@@ -18,7 +33,7 @@ file = open("output.txt", "w")
 
 # Определение начальных координат, количества шагов, массива минимальных найденных значений функции,
 # массива для предотвращения зацикливания, длины шага альфа, шага h 
-xy_values = [[random.randint(-5, 5) for _ in range(2)] for _ in range(500)]
+xy_values = generator_xy([], 500, -5, 5)
 
 # xy_values = [[-3, 4], [0, 2], [-1, 2], [-1, 1], [1, 2], [-2, 1], [0, 1], [1, 1], [1, 0], [2, 1], [2, 2], [-1, -1]]
 # Example loop:

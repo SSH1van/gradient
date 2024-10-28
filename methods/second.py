@@ -7,6 +7,21 @@ import random
 def find_z(x, y):
     return (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * math.sin(x * y)
 
+# Генератор уникальных случайных координат в заданном количестве, в заданном диапазоне
+def generator_xy(xy_values, num_xy, left, right):
+    max_num_xy = (abs(left) + abs(right) + 1) ** 2 - len(xy_values)
+    if num_xy > max_num_xy:
+        num_xy = max_num_xy
+        print(f"The maximum number of coordinates has been changed to {num_xy}\n")
+        
+    for i in range(num_xy):
+        x, y = random.randint(left, right), random.randint(left, right)
+        while [x, y] in xy_values:
+            x, y = random.randint(left, right), random.randint(left, right)
+        else:
+            xy_values.append([x, y])
+    return xy_values
+
 # Нахождение среднего квадратичного экстремумов
 def average(mas):
     average = sum(mas) / len(mas)
@@ -25,7 +40,7 @@ start_time = time.time()
 file = open("output.txt", "w")
 
 # Определение начальных координат, количества шагов, массива минимальных найденных значений функции, длины шага альфа, шага h
-xy_values = [[random.randint(-5, 5) for _ in range(2)] for _ in range(3)]
+xy_values = generator_xy([], 3, -5, 5)
 
 n_steps = sys.maxsize
 all_z_min = []
@@ -61,7 +76,7 @@ for xy_val in xy_values:
         if len(all_z_min) == 9: 
             break
         elif average(all_z_min) < 0.01:
-            xy_values.extend([[random.randint(-5, 5) for _ in range(2)] for _ in range(3)])
+            xy_values = generator_xy(xy_values, 3, -5, 5)
         else: 
             break
 
