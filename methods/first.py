@@ -1,6 +1,7 @@
 import math
 import time
 
+# Запуск таймера
 start_time = time.time()
 
 # Объявление функции
@@ -38,6 +39,7 @@ for i in range(n_steps):
 # z = find_z(x, y)
 # print(f"x = {x}, y = {y}, z = {z}")
 
+# Остановка таймера, вывод в терминал
 end_time = time.time()
 elapsed_time = round(end_time - start_time, 1)
 print('Elapsed time: ', elapsed_time)

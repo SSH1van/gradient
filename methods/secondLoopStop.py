@@ -27,7 +27,8 @@ def writeTerminalFile(s, x, y, z, step, file):
     s = f"x = {round(x, 4)}, y = {round(y, 4)}, z = {round(z, 4)}\nNumber of steps: {step}\n"
     file.write(s + "\n")
     print(s)
-        
+
+# Запуск таймера, открытие файла для записи       
 start_time = time.time()
 file = open("output.txt", "w")
 
@@ -80,9 +81,11 @@ for xy_val in xy_values:
 z_min = min(all_z_min)
 z_i = all_z_min.index(z_min)
 
+# Остановка таймера
 end_time = time.time()
 elapsed_time = round(end_time - start_time, 1)
 
+# Вывод в файл и в командную строку
 s = f"\nInitial data: x = {round(xy_values[z_i][0], 4)}, y = {round(xy_values[z_i][1], 4)}\nMIN: z = {round(z_min, 4)}\n\nElapsed time: {elapsed_time}"
 file.write(s)
 file.close()
