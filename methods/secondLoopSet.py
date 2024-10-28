@@ -16,17 +16,15 @@ def generator_xy(xy_values, num_xy, left, right, file):
         print(s)
         file.write(s)
         
-    count = 0
-    while count < num_xy:
-        x, y = random.randint(left, right), random.randint(left, right)
-        if [x, y] not in xy_values:
-            xy_values.append([x, y])
-            count += 1 
+    while len(xy_values) < num_xy:
+        xy_values.add((random.randint(left, right), random.randint(left, right)))
     return xy_values
 
 # Вывод в терминал и запись в файл
 def writeTerminalFile(s, x, y, z, step, file):
-    s = f"x = {round(x, 4)}, y = {round(y, 4)}, z = {round(z, 4)}\nNumber of steps: {step}\n"
+    step_info = f"\nNumber of steps: {step}\n" if step else ""
+    s += f" x = {round(x, 4)}, y = {round(y, 4)}, z = {round(z, 4)}{step_info}"
+    
     file.write(s + "\n")
     print(s)
 
@@ -36,27 +34,31 @@ file = open("output.txt", "w")
 
 # Определение начальных координат, количества шагов, массива минимальных найденных значений функции,
 # массива для предотвращения зацикливания, длины шага альфа, шага h 
-xy_values = generator_xy([], 500, -5, 5, file)
+left, right = -10, 10
+num_xy = 500
+xy_values = set()
+xy_values = generator_xy(xy_values, num_xy, left, right, file)
 
 # xy_values = [[-3, 4], [0, 2], [-1, 2], [-1, 1], [1, 2], [-2, 1], [0, 1], [1, 1], [1, 0], [2, 1], [2, 2], [-1, -1]]
+
 # Example loop:
 # (0.4 * x) ** 2 + (0.3 * y) ** 2 - 1 * math.sin(x * y)
 # xy_values = [[3, 4], [0, 2], [-1, 2]]
 
 n_steps = sys.maxsize
-all_z_min = []
+all_xyz_min = []
 mas_loop = []
 alpha = 0.1
 h = 0.0001
 print("In process...")
 
 # Цикл перебора начальных координат
-for xy_val in xy_values:
-    x, y = xy_val[0], xy_val[1]
+while xy_values:
+    xy_value = xy_values.pop()
+    x, y = xy_value[0], xy_value[1]
     z = find_z(x, y)
-    s = f"Initial data: x = {round(x, 4)}, y = {round(y, 4)}"
-    file.write(s + "\n")
-    print(s)
+
+    writeTerminalFile(f"Initial data:", x, y, z, None, file)
 
     # Цикл поиска экстремумов для разных начальных координат
     for step in range(n_steps):
@@ -72,23 +74,21 @@ for xy_val in xy_values:
                     mas_loop.pop(0)
             mas_loop.append(round(z, 4))
         else:
-            if mas_loop:
-                all_z_min.append(min(mas_loop))
-            else:
-                all_z_min.append(z)
-            writeTerminalFile(s, x, y, all_z_min[-1], step, file)
+            min_z_loop = min(mas_loop)
+            all_xyz_min.append([min_z_loop, round(x, 4), round(y, 4)])
+            writeTerminalFile(f"Final data:", x, y, min_z_loop, step, file)
             break
 
 # Нахождение минимального значения из найденных экстремумов
-z_min = min(all_z_min)
-z_i = all_z_min.index(z_min)
+xyz_min = min(all_xyz_min)
+z_min, x_min, y_min = xyz_min
 
 # Остановка таймера
 end_time = time.time()
 elapsed_time = round(end_time - start_time, 3)
 
 # Вывод в файл и в командную строку
-s = f"\nInitial data: x = {round(xy_values[z_i][0], 4)}, y = {round(xy_values[z_i][1], 4)}\nMIN: z = {round(z_min, 4)}\n\nElapsed time: {elapsed_time}"
+s = f"\nFinal data: x = {x_min}, y = {y_min}\nMIN: z = {z_min}\n\nElapsed time: {elapsed_time}"
 file.write(s)
 file.close()
 print(s)
