@@ -1,7 +1,11 @@
-from sympy import *
 import sys
-import random
 import time
+import math
+import random
+
+# Объявление функции
+def find_z(x, y):
+    return (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * math.sin(x * y)
 
 # Нахождение среднего квадратичного экстремумов
 def average(mas):
@@ -9,24 +13,18 @@ def average(mas):
     summ = 0
     for element in mas:
         summ += (average - element) ** 2
-    return(sqrt(summ / len(mas)))
+    return(math.sqrt(summ / len(mas)))
 
 # Вывод в терминал и запись в файл
-def writeTerminalFile(s, x_val, y_val, z_val, step, file):
-    s = f"x = {round(x_val, 4)}, y = {round(y_val, 4)}, z = {round(z_val, 4)}\nNumber of steps: {step}\n"
+def writeTerminalFile(s, x, y, z, step, file):
+    s = f"x = {round(x, 4)}, y = {round(y, 4)}, z = {round(z, 4)}\nNumber of steps: {step}\n"
     file.write(s + "\n")
     print(s)
 
 start_time = time.time()
-
 file = open("output.txt", "w")
 
-# Объявление функции
-x, y = symbols('x y')
-z = (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * sin(x * y)
-file.write(f"Function: {z}\n")
-
-# Определение начальных координат, количества шагов, массива минимальных найденных значений функции, длины шага альфа, скорости убывания бетта
+# Определение начальных координат, количества шагов, массива минимальных найденных значений функции, длины шага альфа, шага h
 xy_values = [[random.randint(-5, 5) for _ in range(2)] for _ in range(3)]
 
 n_steps = sys.maxsize
@@ -36,29 +34,26 @@ h = 0.0001
 print("In process...")
 
 # Цикл перебора начальных координат
-for xy_val in xy_values:
-    z_val = 0
-    x_val, y_val = xy_val[0], xy_val[1]
-    s = f"Initial data: x = {round(x_val, 4)}, y = {round(y_val, 4)}"
+for xy_val in xy_values: 
+    x, y = xy_val[0], xy_val[1]
+    z = find_z(x, y)
+    s = f"Initial data: x = {round(x, 4)}, y = {round(y, 4)}"
     file.write(s + "\n")
     print(s)
 
     # Цикл поиска экстремумов для разных начальных координат
     for step in range(n_steps):
-        grad_x = (z.subs({x: x_val + h, y: y_val}).evalf() - z.subs({x: x_val, y: y_val}).evalf()) / h
-        grad_y = (z.subs({x: x_val, y: y_val + h}).evalf() - z.subs({x: x_val, y: y_val}).evalf()) / h
+        grad_x = (find_z(x + h, y) - find_z(x, y)) / h
+        grad_y = (find_z(x, y + h) - find_z(x, y)) / h
 
-        x_val = x_val - alpha * grad_x
-        y_val = y_val - alpha * grad_y
+        x = x - alpha * grad_x
+        y = y - alpha * grad_y
 
-        old_grad_x = grad_x
-        old_grad_y = grad_y
-
-        if round(z_val, 4) != round(z.subs({x: x_val, y: y_val}).evalf(), 4) and z_val < 999999 and (alpha >= 0.1 or step < 500):
-            z_val = z.subs({x: x_val, y: y_val}).evalf()
+        if round(z, 4) != round(find_z(x, y), 4) and z < 999999 and step < 500:
+            z = find_z(x, y)
         else:
-            all_z_min.append(z_val)
-            writeTerminalFile(s, x_val, y_val, z_val, step, file)
+            all_z_min.append(z)
+            writeTerminalFile(s, x, y, z, step, file)
             break
 
     # Условие остановки или добавления новых точек
@@ -70,7 +65,6 @@ for xy_val in xy_values:
         else: 
             break
 
-
 # Нахождение минимального значения из найденных экстремумов
 z_min = min(all_z_min)
 z_i = all_z_min.index(z_min)
@@ -78,7 +72,7 @@ z_i = all_z_min.index(z_min)
 end_time = time.time()
 elapsed_time = round(end_time - start_time, 1)
 
-s = f"Initial data: x = {round(xy_values[z_i][0], 4)}, y = {round(xy_values[z_i][1], 4)}\nMIN: z = {round(z_min, 4)}\n\nElapsed time: {elapsed_time}"
+s = f"\nInitial data: x = {round(xy_values[z_i][0], 4)}, y = {round(xy_values[z_i][1], 4)}\nMIN: z = {round(z_min, 4)}\n\nElapsed time: {elapsed_time}"
 file.write(s)
 file.close()
 print(s)
