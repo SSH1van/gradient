@@ -59,7 +59,6 @@ while xy_values:
     xy_value = xy_values.pop()
     x, y = xy_value[0], xy_value[1]
     z = find_z(x, y)
-
     writeTerminalFile(f"Initial data:", x, y, z, None, file)
 
     # Цикл поиска экстремумов для разных начальных координат
@@ -67,8 +66,8 @@ while xy_values:
         grad_x = (find_z(x + h, y) - find_z(x, y)) / h
         grad_y = (find_z(x, y + h) - find_z(x, y)) / h
 
-        x = x - alpha * grad_x
-        y = y - alpha * grad_y
+        x -= alpha * grad_x
+        y -= alpha * grad_y
         
         if not round(find_z(x, y), 4) in mas_loop and z < 999999:
             z = find_z(x, y)
@@ -76,9 +75,10 @@ while xy_values:
                     mas_loop.pop(0)
             mas_loop.append(round(z, 4))
         else:
-            min_z_loop = min(mas_loop)
-            all_xyz_min.add((min_z_loop, round(x, 4), round(y, 4)))
-            writeTerminalFile(f"Final data:", x, y, min_z_loop, step, file)
+            if mas_loop:
+                min_z_loop = min(mas_loop)
+                all_xyz_min.add((min_z_loop, round(x, 4), round(y, 4)))
+                writeTerminalFile(f"Final data:", x, y, min_z_loop, step, file)
             break
 
 # Нахождение минимального значения из найденных экстремумов

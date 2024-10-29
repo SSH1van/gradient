@@ -7,7 +7,7 @@ import random
 def find_z(x, y):
     return (1 * x + 1) ** 2 + (1 * y + 1) ** 2 + 1 * math.sin(x * y)
 
-# Генератор уникальных и случайных случайных координат в заданном количестве, в заданном диапазоне
+# Генератор уникальных и случайных координат в заданном количестве, в заданном диапазоне
 def generator_xy(xy_values, num_xy, left, right, file):
     right -= left
     max_num_xy = (right + 1) ** 2 - len(xy_values)
@@ -15,7 +15,7 @@ def generator_xy(xy_values, num_xy, left, right, file):
         num_xy = max_num_xy
         s = f"The maximum number of coordinates has been changed to {num_xy}\n"
         print(s)
-        file.write(s + "\n")
+        file.write(s)
 
     right += left     
     count = 0
@@ -26,14 +26,6 @@ def generator_xy(xy_values, num_xy, left, right, file):
             count += 1 
     return xy_values
 
-# Нахождение среднего квадратичного экстремумов
-def average(mas):
-    average = sum(mas) / len(mas)
-    summ = 0
-    for element in mas:
-        summ += (average - element) ** 2
-    return(math.sqrt(summ / len(mas)))
-
 # Вывод в терминал и запись в файл
 def writeTerminalFile(s, x, y, z, step, file):
     step_info = f"\nNumber of steps: {step}\n" if step else ""
@@ -42,20 +34,30 @@ def writeTerminalFile(s, x, y, z, step, file):
     file.write(s + "\n")
     print(s)
 
-# Запуск таймера, открытие файла для записи
+# Запуск таймера, открытие файла для записи       
 start_time = time.time()
 file = open("output.txt", "w")
 
-# Определение начальных координат, количества шагов, массива минимальных найденных значений функции, длины шага альфа, шага h
-xy_values = generator_xy([], 3, -5, 5, file)
+# Определение начальных координат, количества шагов, массива минимальных найденных значений функции,
+# массива для предотвращения зацикливания, длины шага альфа, шага h 
+left, right = -10, 10
+num_xy = 500
+xy_values = generator_xy([], num_xy, left, right, file)
+
+# xy_values = [[-3, 4], [0, 2], [-1, 2], [-1, 1], [1, 2], [-2, 1], [0, 1], [1, 1], [1, 0], [2, 1], [2, 2], [-1, -1]]
+# Example loop:
+# (0.4 * x) ** 2 + (0.3 * y) ** 2 - 1 * math.sin(x * y)
+# xy_values = [[3, 4], [0, 2], [-1, 2]]
+
 n_steps = sys.maxsize
 all_z_min = []
+mas_loop = []
 alpha = 0.1
 h = 0.0001
 print("In process...")
 
 # Цикл перебора начальных координат
-for xy_val in xy_values: 
+for xy_val in xy_values:
     x, y = xy_val[0], xy_val[1]
     z = find_z(x, y)
     writeTerminalFile(f"Initial data:", x, y, z, None, file)
@@ -67,21 +69,17 @@ for xy_val in xy_values:
 
         x -= alpha * grad_x
         y -= alpha * grad_y
-
-        if round(z, 4) != round(find_z(x, y), 4) and z < 999999 and step < 500:
+        
+        if not round(find_z(x, y), 4) in mas_loop and z < 999999:
             z = find_z(x, y)
+            if len(mas_loop) > 20:
+                    mas_loop.pop(0)
+            mas_loop.append(round(z, 4))
         else:
-            all_z_min.append(z)
-            writeTerminalFile(f"Final data:", x, y, z, step, file)
-            break
-
-    # Условие остановки или добавления новых точек
-    if len(all_z_min) % 3 == 0: 
-        if len(all_z_min) == 9: 
-            break
-        elif average(all_z_min) < 0.01:
-            xy_values = generator_xy(xy_values, 3, -5, 5, file)
-        else: 
+            if mas_loop:
+                min_z_loop = min(mas_loop)
+                all_z_min.append(min_z_loop)
+                writeTerminalFile(f"Final data:", x, y, min_z_loop, step, file)
             break
 
 # Нахождение минимального значения из найденных экстремумов
