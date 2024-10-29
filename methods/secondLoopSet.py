@@ -9,13 +9,15 @@ def find_z(x, y):
 
 # Генератор уникальных и случайных координат в заданном количестве, в заданном диапазоне
 def generator_xy(xy_values, num_xy, left, right, file):
-    max_num_xy = (abs(left) + abs(right) + 1) ** 2 - len(xy_values)
+    right -= left
+    max_num_xy = (right + 1) ** 2 - len(xy_values)
     if num_xy > max_num_xy:
         num_xy = max_num_xy
         s = f"The maximum number of coordinates has been changed to {num_xy}\n"
         print(s)
         file.write(s)
-        
+
+    right += left  
     while len(xy_values) < num_xy:
         xy_values.add((random.randint(left, right), random.randint(left, right)))
     return xy_values
@@ -46,7 +48,7 @@ xy_values = generator_xy(xy_values, num_xy, left, right, file)
 # xy_values = [[3, 4], [0, 2], [-1, 2]]
 
 n_steps = sys.maxsize
-all_xyz_min = []
+all_xyz_min = set()
 mas_loop = []
 alpha = 0.1
 h = 0.0001
@@ -75,7 +77,7 @@ while xy_values:
             mas_loop.append(round(z, 4))
         else:
             min_z_loop = min(mas_loop)
-            all_xyz_min.append([min_z_loop, round(x, 4), round(y, 4)])
+            all_xyz_min.add((min_z_loop, round(x, 4), round(y, 4)))
             writeTerminalFile(f"Final data:", x, y, min_z_loop, step, file)
             break
 
