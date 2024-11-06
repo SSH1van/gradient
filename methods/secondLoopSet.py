@@ -35,13 +35,11 @@ start_time = time.time()
 file = open("output.txt", "w")
 
 # Определение начальных координат, количества шагов, массива минимальных найденных значений функции,
-# массива для предотвращения зацикливания, длины шага альфа, шага h 
+# массива для предотвращения зацикливания, длины шага альфа, шага конечных разностей h 
 left, right = -10, 10
 num_xy = 500
 xy_values = set()
 xy_values = generator_xy(xy_values, num_xy, left, right, file)
-
-# xy_values = [[-3, 4], [0, 2], [-1, 2], [-1, 1], [1, 2], [-2, 1], [0, 1], [1, 1], [1, 0], [2, 1], [2, 2], [-1, -1]]
 
 # Example loop:
 # (0.4 * x) ** 2 + (0.3 * y) ** 2 - 1 * math.sin(x * y)
@@ -69,11 +67,11 @@ while xy_values:
         x -= alpha * grad_x
         y -= alpha * grad_y
         
-        if not round(find_z(x, y), 4) in mas_loop and z < 999999:
-            z = find_z(x, y)
+        z = round(find_z(x, y), 4)
+        if mas_loop.count(z) < 3 and z < 999999:
             if len(mas_loop) > 20:
                     mas_loop.pop(0)
-            mas_loop.append(round(z, 4))
+            mas_loop.append(z)
         else:
             if mas_loop:
                 min_z_loop = min(mas_loop)
